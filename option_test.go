@@ -8,13 +8,13 @@ import (
 
 func Test_OptionFromReference_Empty(t *testing.T) {
 	var val *string
-	option := OptionFromReference(val)
+	option := OptionOfNillable(val)
 	assert.False(t, option.Present())
 }
 
 func Test_OptionFromReference_Present(t *testing.T) {
 	val := "test"
-	option := OptionFromReference(&val)
+	option := OptionOfNillable(&val)
 	assert.True(t, option.Present())
 }
 
@@ -23,7 +23,7 @@ func Test_MapOption_Present(t *testing.T) {
 	var called *bool
 	called = new(bool)
 	*called = false
-	actual := MapOption(o, func(str string) int {
+	actual := OptionMap(o, func(str string) int {
 		*called = true
 		return len(str)
 	})
@@ -38,7 +38,7 @@ func Test_MapOption_Empty(t *testing.T) {
 	var called *bool
 	called = new(bool)
 	*called = false
-	actual := MapOption(o, func(str string) int {
+	actual := OptionMap(o, func(str string) int {
 		*called = true
 		return len(str)
 	})

@@ -25,7 +25,7 @@ func ExampleOption_goodDivision() {
 	var option Option[int] = Divide(6, 3).Map(Double)
 	// But mapping operations with different input and output types must use
 	// package level functions due to language limitations.
-	message := MapOption(option, String)
+	message := OptionMap(option, String)
 
 	var result string
 	if message.Present() {
@@ -40,7 +40,7 @@ func ExampleOption_goodDivision() {
 
 func ExampleOption_badDivision() {
 	var option Option[int] = Divide(100, 0).Map(Double)
-	message := MapOption(option, String)
+	message := OptionMap(option, String)
 
 	var result string
 	if message.Present() {
