@@ -1,8 +1,10 @@
-# fluent [![Build status][ci-img]][ci-url]
+# fluent [![Build status][ci-img]][ci-url] [![Test coverage][cov-img]][cov-url]
 Functional constructs (lent from other languages) for Go lang 1.18
 
 [ci-img]: https://github.com/mikhasd/fluent/actions/workflows/go.yml/badge.svg
 [ci-url]: https://github.com/mikhasd/fluent/actions/workflows/go.yml
+[cov-img]: https://codecov.io/gh/mikhasd/fluent/branch/main/graph/badge.svg
+[cov-url]: https://codecov.io/gh/mikhasd/fluent/branch/main
 
 # Option Examples
 
