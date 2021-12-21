@@ -31,7 +31,7 @@ func (p present[T]) Or(supplier func() Option[T]) Option[T] {
 }
 
 func (p present[T]) OrError(e error) Result[T] {
-	return ResultOk(p.value)
+	return Ok(p.value)
 }
 
 func (p present[T]) String() string {

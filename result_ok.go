@@ -15,15 +15,15 @@ func (o ok[T]) IsErr() bool {
 }
 
 func (o ok[T]) Ok() Option[T] {
-	return OptionPresent(o.value)
+	return Present(o.value)
 }
 
 func (o ok[T]) Err() Option[error] {
-	return OptionEmpty[error]()
+	return Empty[error]()
 }
 
 func (o ok[T]) Map(mapper func(T) T) Result[T] {
-	return ResultOk(mapper(o.value))
+	return Ok(mapper(o.value))
 }
 
 func (o ok[T]) MapErr(mapper func(error) T) Result[T] {

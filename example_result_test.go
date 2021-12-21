@@ -11,7 +11,7 @@ var sourceFiles embed.FS
 func FileBytes(fileName string) Result[[]byte] {
 	// ResultFromCall returns an error Result if the result err is equal to nil
 	// or Ok if the error is not present.
-	return ResultFromCall(func() ([]byte, error) {
+	return CallResult(func() ([]byte, error) {
 		data, err := sourceFiles.ReadFile(fileName)
 		return data, err
 	})
@@ -19,7 +19,7 @@ func FileBytes(fileName string) Result[[]byte] {
 
 func ExampleResult_goodFile() {
 	r := FileBytes("README.md")
-	msg := ResultMap(r, func(b []byte) string {
+	msg := MapResult(r, func(b []byte) string {
 		return "has file"
 	})
 
@@ -36,7 +36,7 @@ func ExampleResult_goodFile() {
 
 func ExampleResult_badFile() {
 	r := FileBytes("badfile")
-	msg := ResultMap(r, func(b []byte) string {
+	msg := MapResult(r, func(b []byte) string {
 		return "has file"
 	})
 

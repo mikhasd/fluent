@@ -27,9 +27,9 @@ import (
 
 func Divide(a, b int) fluent.Option[int] {
 	if b == 0 {
-		return fluent.OptionEmpty[int]()
+		return fluent.Empty[int]()
 	} else {
-		return fluent.OptionPresent(a / b)
+		return fluent.Present(a / b)
 	}
 }
 
@@ -94,7 +94,7 @@ var sourceFiles embed.FS
 func FileBytes(fileName string) fluent.Result[[]byte] {
 	// ResultFromCall returns an error Result if the result err is equal to nil
 	// or Ok if the error is not present.
-	return fluent.ResultFromCall(func() ([]byte, error) {
+	return fluent.CallResult(func() ([]byte, error) {
 		data, err := sourceFiles.ReadFile(fileName)
 		return data, err
 	})
@@ -102,7 +102,7 @@ func FileBytes(fileName string) fluent.Result[[]byte] {
 
 func ExampleResult_goodFile() {
 	r := FileBytes("README.md")
-	msg := fluent.ResultMap(r, func(b []byte) string {
+	msg := fluent.MapResult(r, func(b []byte) string {
 		return "has file"
 	})
 
@@ -119,7 +119,7 @@ func ExampleResult_goodFile() {
 
 func ExampleResult_badFile() {
 	r := FileBytes("badfile")
-	msg := fluent.ResultMap(r, func(b []byte) string {
+	msg := fluent.MapResult(r, func(b []byte) string {
 		return "has file"
 	})
 

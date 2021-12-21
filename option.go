@@ -30,39 +30,39 @@ type Option[T any] interface {
 	String() string
 }
 
-// OptionPresent returns a new Option wrapping the T value.
-func OptionPresent[T any](value T) Option[T] {
+// Present returns a new Option wrapping the T value.
+func Present[T any](value T) Option[T] {
 	return present[T]{value}
 }
 
-// OptionEmpty returns a new empty Option.
-func OptionEmpty[T any]() Option[T] {
+// Empty returns a new empty Option.
+func Empty[T any]() Option[T] {
 	return empty[T]{}
 }
 
-// OptionOfNillable return an Option describing the provided reference.
+// OfNillable returns an Option describing the provided reference.
 //
 // If the provided reference of T is non-nil, a Option representing the value
 // is returned.
 //
 // If the value is nil, an empty option is returned.
-func OptionOfNillable[T any](ref *T) Option[*T] {
+func OfNillable[T any](ref *T) Option[*T] {
 	if ref == nil {
-		return OptionEmpty[*T]()
+		return Empty[*T]()
 	} else {
-		return OptionPresent(ref)
+		return Present(ref)
 	}
 }
 
-// OptionMap executes the mapper function over the Option value if it is not
+// MapOption executes the mapper function over the Option value if it is not
 // empty.
 //
 // If the Option is empty, the mapper is not executed and an empty Option is
 // returned.
-func OptionMap[T any, R any](o Option[T], mapper func(T) R) Option[R] {
+func MapOption[T any, R any](o Option[T], mapper func(T) R) Option[R] {
 	if o.Present() {
-		return OptionPresent(mapper(o.Get()))
+		return Present(mapper(o.Get()))
 	} else {
-		return OptionEmpty[R]()
+		return Empty[R]()
 	}
 }

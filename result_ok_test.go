@@ -9,19 +9,19 @@ import (
 var testValue = 951753852
 
 func Test_ResultOk_IsOk(t *testing.T) {
-	r := ResultOk(testValue)
+	r := Ok(testValue)
 
 	assert.True(t, r.IsOk())
 }
 
 func Test_ResultOk_IsErr(t *testing.T) {
-	r := ResultOk(testValue)
+	r := Ok(testValue)
 
 	assert.False(t, r.IsErr())
 }
 
 func Test_ResultOk_Ok(t *testing.T) {
-	r := ResultOk(testValue)
+	r := Ok(testValue)
 
 	ok := r.Ok()
 
@@ -29,7 +29,7 @@ func Test_ResultOk_Ok(t *testing.T) {
 }
 
 func Test_ResultOk_Err(t *testing.T) {
-	r := ResultOk(testValue)
+	r := Ok(testValue)
 
 	e := r.Err()
 
@@ -37,7 +37,7 @@ func Test_ResultOk_Err(t *testing.T) {
 }
 
 func Test_ResultOk_Map(t *testing.T) {
-	r := ResultOk(testValue)
+	r := Ok(testValue)
 	called := new(bool)
 	*called = false
 	actual := r.Map(func(val int) int {
@@ -51,7 +51,7 @@ func Test_ResultOk_Map(t *testing.T) {
 }
 
 func Test_ResultOk_MapErr(t *testing.T) {
-	r := ResultOk(testValue)
+	r := Ok(testValue)
 	called := new(bool)
 	*called = false
 	expected := 987654231
@@ -65,7 +65,7 @@ func Test_ResultOk_MapErr(t *testing.T) {
 }
 
 func Test_ResultOk_Get(t *testing.T) {
-	r := ResultOk(testValue)
+	r := Ok(testValue)
 
 	actual := r.Get()
 
@@ -73,7 +73,7 @@ func Test_ResultOk_Get(t *testing.T) {
 }
 
 func Test_ResultOk_GetErr(t *testing.T) {
-	r := ResultOk(testValue)
+	r := Ok(testValue)
 	defer func() {
 		recover()
 	}()
@@ -82,13 +82,13 @@ func Test_ResultOk_GetErr(t *testing.T) {
 }
 
 func Test_ResultOk_OrElse(t *testing.T) {
-	r := ResultOk(testValue)
+	r := Ok(testValue)
 	actual := r.OrElse(1)
 	assert.Equal(t, testValue, actual)
 }
 
 func Test_ResultOk_OrElseGet(t *testing.T) {
-	r := ResultOk(testValue)
+	r := Ok(testValue)
 	actual := r.OrElseGet(func() int {
 		return 1
 	})
@@ -96,14 +96,14 @@ func Test_ResultOk_OrElseGet(t *testing.T) {
 }
 
 func Test_ResultOk_Or(t *testing.T) {
-	r := ResultOk(testValue)
+	r := Ok(testValue)
 	actual := r.Or(func() Result[int] {
-		return ResultOk(1)
+		return Ok(1)
 	})
 	assert.Equal(t, testValue, actual.Get())
 }
 
 func Test_ResultOk_String(t *testing.T) {
-	r := ResultOk(testValue)
+	r := Ok(testValue)
 	assert.NotEmpty(t, r.String())
 }

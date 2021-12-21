@@ -15,11 +15,11 @@ func (e err[T]) IsErr() bool {
 }
 
 func (e err[T]) Ok() Option[T] {
-	return OptionEmpty[T]()
+	return Empty[T]()
 }
 
 func (e err[T]) Err() Option[error] {
-	return OptionPresent(e.e)
+	return Present(e.e)
 }
 
 func (e err[T]) Map(mapper func(T) T) Result[T] {

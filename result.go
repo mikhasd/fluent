@@ -56,40 +56,40 @@ type Result[T any] interface {
 	String() string
 }
 
-// ResultOk returns a result representing a successful operation resulting in
+// Ok returns a result representing a successful operation resulting in
 // the value T.
-func ResultOk[T any](value T) Result[T] {
+func Ok[T any](value T) Result[T] {
 	return ok[T]{value}
 }
 
-// ResultErr returns a result representing a failed operation which resulted in
+// Err returns a result representing a failed operation which resulted in
 // on an error.
-func ResultErr[T any](e error) Result[T] {
+func Err[T any](e error) Result[T] {
 	return err[T]{e}
 }
 
-// ResultMap executes the mapper function over the Result value if it Ok.
+// MapResult executes the mapper function over the Result value if it Ok.
 //
 // If the Result is Err, the mapper is not executed and an Err Result is
 // returned.
-func ResultMap[T any, R any](r Result[T], mapper func(T) R) Result[R] {
+func MapResult[T any, R any](r Result[T], mapper func(T) R) Result[R] {
 	if r.IsOk() {
-		return ResultOk(mapper(r.Get()))
+		return Ok(mapper(r.Get()))
 	} else {
-		return ResultErr[R](r.GetErr())
+		return Err[R](r.GetErr())
 	}
 }
 
-// ResultFromCall executes the provided function and returns an Ok result if
+// CallResult executes the provided function and returns an Ok result if
 // the result error is nil.
 //
 // If the provided function returns an error, an Err result is returned, even
 // if a result is returned.
-func ResultFromCall[T any](fn func() (T, error)) Result[T] {
+func CallResult[T any](fn func() (T, error)) Result[T] {
 	result, err := fn()
 	if err == nil {
-		return ResultOk(result)
+		return Ok(result)
 	} else {
-		return ResultErr[T](err)
+		return Err[T](err)
 	}
 }

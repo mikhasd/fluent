@@ -6,9 +6,9 @@ import (
 
 func Divide(a, b int) Option[int] {
 	if b == 0 {
-		return OptionEmpty[int]()
+		return Empty[int]()
 	} else {
-		return OptionPresent(a / b)
+		return Present(a / b)
 	}
 }
 
@@ -25,7 +25,7 @@ func ExampleOption_goodDivision() {
 	var option Option[int] = Divide(6, 3).Map(Double)
 	// But mapping operations with different input and output types must use
 	// package level functions due to language limitations.
-	message := OptionMap(option, String)
+	message := MapOption(option, String)
 
 	var result string
 	if message.Present() {
@@ -40,7 +40,7 @@ func ExampleOption_goodDivision() {
 
 func ExampleOption_badDivision() {
 	var option Option[int] = Divide(100, 0).Map(Double)
-	message := OptionMap(option, String)
+	message := MapOption(option, String)
 
 	var result string
 	if message.Present() {

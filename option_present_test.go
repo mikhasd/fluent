@@ -10,12 +10,12 @@ import (
 const value = 987654231
 
 func Test_OptionPresent_Present(t *testing.T) {
-	o := OptionPresent(value)
+	o := Present(value)
 	assert.True(t, o.Present())
 }
 
 func Test_OptionPresent_Get(t *testing.T) {
-	o := OptionPresent(value)
+	o := Present(value)
 
 	actual := o.Get()
 
@@ -23,7 +23,7 @@ func Test_OptionPresent_Get(t *testing.T) {
 }
 
 func Test_OptionPresent_Map(t *testing.T) {
-	o := OptionPresent(value)
+	o := Present(value)
 
 	called := new(bool)
 	*called = false
@@ -41,14 +41,14 @@ func Test_OptionPresent_Map(t *testing.T) {
 }
 
 func Test_OptionPresent_OrElse(t *testing.T) {
-	o := OptionPresent(value)
+	o := Present(value)
 	actual := o.OrElse(987654321)
 
 	assert.Equal(t, value, actual)
 }
 
 func Test_OptionPresent_OrElseGet(t *testing.T) {
-	o := OptionPresent(value)
+	o := Present(value)
 	called := new(bool)
 	*called = false
 	actual := o.OrElseGet(func() int {
@@ -61,10 +61,10 @@ func Test_OptionPresent_OrElseGet(t *testing.T) {
 }
 
 func Test_OptionPresent_Or(t *testing.T) {
-	o := OptionPresent(value)
+	o := Present(value)
 	expected := 987654321
 	actual := o.Or(func() Option[int] {
-		return OptionPresent(expected)
+		return Present(expected)
 	})
 
 	assert.True(t, actual.Present(), "present")
@@ -72,7 +72,7 @@ func Test_OptionPresent_Or(t *testing.T) {
 }
 
 func Test_OptionPresent_OrError(t *testing.T) {
-	o := OptionPresent(value)
+	o := Present(value)
 
 	err := errors.New("err")
 
@@ -83,6 +83,6 @@ func Test_OptionPresent_OrError(t *testing.T) {
 }
 
 func Test_OptionPresent_String(t *testing.T) {
-	o := OptionPresent(value)
+	o := Present(value)
 	assert.NotEmpty(t, o.String())
 }

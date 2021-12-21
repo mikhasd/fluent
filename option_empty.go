@@ -29,7 +29,7 @@ func (e empty[T]) Or(supplier func() Option[T]) Option[T] {
 }
 
 func (e empty[T]) OrError(err error) Result[T] {
-	return ResultErr[T](err)
+	return Err[T](err)
 }
 
 func (e empty[T]) String() string {

@@ -8,11 +8,11 @@ import (
 
 func Test_ResultMap_Ok(t *testing.T) {
 	value := "a"
-	r := ResultOk(value)
+	r := Ok(value)
 	expected := len(value)
 	called := new(bool)
 	*called = false
-	actual := ResultMap(r, func(val string) int {
+	actual := MapResult(r, func(val string) int {
 		*called = true
 		return len(val)
 	})
@@ -21,10 +21,10 @@ func Test_ResultMap_Ok(t *testing.T) {
 }
 
 func Test_ResultMap_Err(t *testing.T) {
-	r := ResultErr[string](testErr)
+	r := Err[string](testErr)
 	called := new(bool)
 	*called = false
-	actual := ResultMap(r, func(val string) int {
+	actual := MapResult(r, func(val string) int {
 		*called = true
 		return len(val)
 	})
@@ -37,7 +37,7 @@ func Test_ResultFromCall_Ok(t *testing.T) {
 	fn := func() (int, error) {
 		return expected, nil
 	}
-	r := ResultFromCall(fn)
+	r := CallResult(fn)
 	assert.True(t, r.IsOk(), "IsOk")
 	assert.Equal(t, expected, r.Get())
 }
@@ -47,7 +47,7 @@ func Test_ResultFromCall_Err(t *testing.T) {
 	fn := func() (int, error) {
 		return 0, expected
 	}
-	r := ResultFromCall(fn)
+	r := CallResult(fn)
 	assert.True(t, r.IsErr(), "IsErr")
 	assert.Equal(t, expected, r.GetErr())
 }
