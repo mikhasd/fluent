@@ -1,4 +1,4 @@
-module fluent
+module github.com/mikhasd/fluent
 
 go 1.18
 
