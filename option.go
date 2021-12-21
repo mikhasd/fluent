@@ -10,12 +10,22 @@ package fluent
 // This implementation is based on Java's java.util.Optional and Rust's
 // std::option.
 type Option[T any] interface {
+	// Returns true if a value is present.
 	Present() bool
+	// Gets the Option value or panics if empty
 	Get() T
-	Map(func(T) T) Option[T]
-	OrElse(T) T
+	// Applies the provided mapper function over the Option value, if present.
+	Map(mapper func(T) T) Option[T]
+	// Returns the Option value if present, or the provided value it empty.
+	OrElse(other T) T
+	// Returns the Option value if present, or invoke the provided function if
+	// empty.
 	OrElseGet(func() T) T
+	// If empty, calls the provided function and returns it result or returns
+	// the current option if present.
 	Or(func() Option[T]) Option[T]
+	// Returns the Option value wrapped into a result if present. If empty,
+	// returns a Result with a wrapped error.
 	OrError(e error) Result[T]
 	String() string
 }
@@ -44,6 +54,11 @@ func OptionFromReference[T any](ref *T) Option[T] {
 	}
 }
 
+// MapOption executes the mapper function over the Option value if it is not
+// empty.
+//
+// If the Option is empty, the mapper is not executed and an empty Option is
+// returned.
 func MapOption[T any, R any](o Option[T], mapper func(T) R) Option[R] {
 	if o.Present() {
 		return OptionPresent(mapper(o.Get()))

@@ -46,6 +46,10 @@ func (o ok[T]) OrElseGet(supplier func() T) T {
 	return o.value
 }
 
+func (o ok[T]) Or(supplier func() Result[T]) Result[T] {
+	return o
+}
+
 func (o ok[T]) String() string {
 	return fmt.Sprintf("Ok[%+v]", o.value)
 }

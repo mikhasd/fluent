@@ -46,6 +46,10 @@ func (e err[T]) OrElseGet(supplier func() T) T {
 	return supplier()
 }
 
+func (e err[T]) Or(supplier func() Result[T]) Result[T] {
+	return supplier()
+}
+
 func (e err[T]) String() string {
 	return fmt.Sprintf("Err[%+v]", e.e)
 }

@@ -87,12 +87,12 @@ func Test_ResultOk_OrElse(t *testing.T) {
 	assert.Equal(t, testValue, actual)
 }
 
-func Test_ResultOk_OrElseGet(t *testing.T) {
+func Test_ResultOk_Or(t *testing.T) {
 	r := ResultOk(testValue)
-	actual := r.OrElseGet(func() int {
-		return 1
+	actual := r.Or(func() Result[int] {
+		return ResultOk(1)
 	})
-	assert.Equal(t, testValue, actual)
+	assert.Equal(t, testValue, actual.Get())
 }
 
 func Test_ResultOk_String(t *testing.T) {

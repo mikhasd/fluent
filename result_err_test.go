@@ -88,13 +88,13 @@ func Test_ResultErr_OrElse(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
-func Test_ResultErr_OrElseGet(t *testing.T) {
+func Test_ResultErr_Or(t *testing.T) {
 	r := ResultErr[int](testErr)
 	expected := 987654321
-	actual := r.OrElseGet(func() int {
-		return expected
+	actual := r.Or(func() Result[int] {
+		return ResultOk(expected)
 	})
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, expected, actual.Get())
 }
 
 func Test_ResultErr_String(t *testing.T) {

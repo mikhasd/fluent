@@ -3,12 +3,21 @@ Functional constructs (lent from other languages) for Go lang 1.18
 
 # Option Examples
 
+Option represents an optional value.
+
+Option can be used as alternative for:
+  - Uninitialized values
+  - Invalid/empty return values
+  - os.IsNotExist(e error)
+
+This implementation is based on Java's java.util.Optional and Rust's std::option.
+
 ```go
 package main
 
 import (
   "github.com/mikhasd/fluent" 
-	"fmt"
+  "fmt"
 )
 
 func Divide(a, b int) fluent.Option[int] {
@@ -59,6 +68,65 @@ func ExampleOption_badDivision() {
 	fmt.Println(result)
 	// Output: empty
 }
+```
 
+# Result Examples
+
+Result represents the output of a function which may have been computed successfully (`Ok`) or failed with an error (`Err`).
+
+```go
+package main
+
+import (
+	"github.com/mikhasd/fluent"
+	"embed"
+	"fmt"
+)
+
+//go:embed README.md
+var sourceFiles embed.FS
+
+func FileBytes(fileName string) fluent.Result[[]byte] {
+	// ResultFromCall returns an error Result if the result err is equal to nil
+	// or Ok if the error is not present.
+	return fluent.ResultFromCall(func() ([]byte, error) {
+		data, err := sourceFiles.ReadFile(fileName)
+		return data, err
+	})
+}
+
+func ExampleResult_goodFile() {
+	r := FileBytes("README.md")
+	msg := fluent.ResultMap(r, func(b []byte) string {
+		return "has file"
+	})
+
+	var result string
+	if msg.IsOk() {
+		result = msg.Get()
+	} else {
+		result = "empty"
+	}
+
+	fmt.Println(result)
+	// Output: has file
+}
+
+func ExampleResult_badFile() {
+	r := FileBytes("badfile")
+	msg := fluent.ResultMap(r, func(b []byte) string {
+		return "has file"
+	})
+
+	var result string
+	if msg.IsOk() {
+		result = msg.Get()
+	} else {
+		result = "empty"
+	}
+
+	fmt.Println(result)
+	// Output: empty
+}
 
 ```
