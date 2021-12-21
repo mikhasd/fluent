@@ -1,5 +1,8 @@
-# fluent [![GoDoc][doc-img]][doc] [![Github release][release-img]][release] [![Build Status][ci-img]][ci] [![Coverage Status][cov-img]][cov] [![Go Report Card][report-card-img]][report-card]
+# fluent [![Build status][ci-img]][ci-url]
 Functional constructs (lent from other languages) for Go lang 1.18
+
+[ci-img]: https://github.com/mikhasd/fluent/actions/workflows/go.yml/badge.svg
+[ci-url]: https://github.com/mikhasd/fluent/actions/workflows/go.yml
 
 # Option Examples
 
