@@ -1,4 +1,4 @@
-# fluent-go
+# fluent [![GoDoc][doc-img]][doc] [![Github release][release-img]][release] [![Build Status][ci-img]][ci] [![Coverage Status][cov-img]][cov] [![Go Report Card][report-card-img]][report-card]
 Functional constructs (lent from other languages) for Go lang 1.18
 
 # Option Examples
