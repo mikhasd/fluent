@@ -69,7 +69,7 @@ func Test_OptionEmpty_Or(t *testing.T) {
 	assert.Equal(t, expected, actual.Get())
 }
 
-func Test_OptionError_OrError(t *testing.T) {
+func Test_OptionEmpty_OrError(t *testing.T) {
 	o := Empty[int]()
 
 	err := errors.New("err")
@@ -78,6 +78,28 @@ func Test_OptionError_OrError(t *testing.T) {
 
 	assert.True(t, actual.IsErr(), "IsErr")
 	assert.Equal(t, err, actual.GetErr(), "error")
+}
+
+func Test_OptionEmpty_IfPresent(t *testing.T) {
+	o := Empty[int]()
+	called := new(bool)
+	*called = false
+	o.IfPresent(func(i int) {
+		*called = true
+	})
+	assert.False(t, *called, "called")
+}
+
+func Test_OptionEmpty_Filter(t *testing.T) {
+	o := Empty[int]()
+	called := new(bool)
+	*called = false
+	o = o.Filter(func(i int) bool {
+		*called = true
+		return true
+	})
+	assert.False(t, o.Present(), "present")
+	assert.False(t, *called, "called")
 }
 
 func Test_OptionEmpty_String(t *testing.T) {

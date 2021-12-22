@@ -82,6 +82,43 @@ func Test_OptionPresent_OrError(t *testing.T) {
 	assert.Equal(t, value, actual.Get(), "value")
 }
 
+func Test_OptionPresent_IfPresent(t *testing.T) {
+	o := Present(value)
+	called := new(bool)
+	*called = false
+	o.IfPresent(func(i int) {
+		*called = true
+		assert.Equal(t, value, i, "value")
+	})
+	assert.True(t, *called, "called")
+}
+
+func Test_OptionPresent_Filter_Match(t *testing.T) {
+	o := Present(value)
+	called := new(bool)
+	*called = false
+	o = o.Filter(func(i int) bool {
+		*called = true
+		assert.Equal(t, value, i, "value")
+		return true
+	})
+	assert.True(t, o.Present(), "present")
+	assert.True(t, *called, "called")
+}
+
+func Test_OptionPresent_Filter_Mismatch(t *testing.T) {
+	o := Present(value)
+	called := new(bool)
+	*called = false
+	o = o.Filter(func(i int) bool {
+		*called = true
+		assert.Equal(t, value, i, "value")
+		return false
+	})
+	assert.False(t, o.Present(), "present")
+	assert.True(t, *called, "called")
+}
+
 func Test_OptionPresent_String(t *testing.T) {
 	o := Present(value)
 	assert.NotEmpty(t, o.String())

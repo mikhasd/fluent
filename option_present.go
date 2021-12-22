@@ -34,6 +34,18 @@ func (p present[T]) OrError(e error) Result[T] {
 	return Ok(p.value)
 }
 
+func (p present[T]) IfPresent(fn func(T)) {
+	fn(p.value)
+}
+
+func (p present[T]) Filter(filter func(T) bool) Option[T] {
+	if filter(p.value) {
+		return p
+	} else {
+		return empty[T]{}
+	}
+}
+
 func (p present[T]) String() string {
 	return fmt.Sprintf("Present[%+v]", p.value)
 }

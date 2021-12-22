@@ -32,6 +32,14 @@ func (e empty[T]) OrError(err error) Result[T] {
 	return Err[T](err)
 }
 
+func (e empty[T]) IfPresent(func(T)) {
+	// Do nothing
+}
+
+func (e empty[T]) Filter(func(T) bool) Option[T] {
+	return e
+}
+
 func (e empty[T]) String() string {
 	return fmt.Sprintf("Empty[]")
 }

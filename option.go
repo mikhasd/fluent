@@ -27,6 +27,12 @@ type Option[T any] interface {
 	// Returns the Option value wrapped into a result if present. If empty,
 	// returns a Result with a wrapped error.
 	OrError(e error) Result[T]
+	// Executes the provided function if a value is present
+	IfPresent(func(T))
+	// If a value is present and the value is accepted by the provided filter,
+	// returns an Option representing the value, otherwise will return an empty
+	// Option
+	Filter(func(T) bool) Option[T]
 	String() string
 }
 
