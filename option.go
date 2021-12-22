@@ -41,7 +41,7 @@ func Present[T any](value T) Option[T] {
 	return present[T]{value}
 }
 
-// Empty returns a new empty Option.
+// Empty returns an empty Option.
 func Empty[T any]() Option[T] {
 	return empty[T]{}
 }
