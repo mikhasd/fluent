@@ -1,0 +1,254 @@
+package stream
+
+import (
+	"testing"
+
+	"github.com/mikhasd/fluent"
+	"github.com/mikhasd/fluent/iterator"
+	"github.com/stretchr/testify/assert"
+)
+
+var streamTestData []int = []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+
+func Test_iteratorStream_next(t *testing.T) {
+	stream := FromArray(streamTestData)
+
+	var o fluent.Option[int]
+	for i := range streamTestData {
+		val := streamTestData[i]
+		o = stream.next()
+
+		assert.NotNil(t, o, "option")
+		assert.True(t, o.Present(), "present")
+		assert.Equal(t, val, o.Get(), "value")
+	}
+
+	o = stream.next()
+	assert.NotNil(t, o, "option")
+	assert.False(t, o.Present(), "present")
+}
+
+func Test_iteratorStream_Skip(t *testing.T) {
+	count := 5
+	stream := FromArray(streamTestData).Skip(count)
+	data := streamTestData[count:]
+
+	var o fluent.Option[int]
+	for i := range data {
+		val := data[i]
+		o = stream.next()
+
+		assert.NotNil(t, o, "option")
+		assert.True(t, o.Present(), "present")
+		assert.Equal(t, val, o.Get(), "value")
+	}
+
+	o = stream.next()
+	assert.NotNil(t, o, "option")
+	assert.False(t, o.Present(), "present")
+}
+
+func Test_iteratorStream_Skip_short(t *testing.T) {
+	count := 11
+	stream := FromArray(streamTestData).Skip(count)
+
+	o := stream.next()
+	assert.NotNil(t, o, "option")
+	assert.False(t, o.Present(), "present")
+}
+
+func Test_skip_Size_larger(t *testing.T) {
+	count := 5
+	expected := 5
+	actual := skip[int]{
+		count:  count,
+		source: iterator.FromArray(streamTestData),
+	}.Size()
+
+	assert.NotNil(t, actual, "option")
+	assert.True(t, actual.Present(), "present")
+	assert.Equal(t, expected, actual.Get(), "size")
+}
+
+func Test_skip_Size_short(t *testing.T) {
+	count := 11
+	expected := 0
+	actual := skip[int]{
+		count:  count,
+		source: iterator.FromArray(streamTestData),
+	}.Size()
+
+	assert.NotNil(t, actual, "option")
+	assert.True(t, actual.Present(), "present")
+	assert.Equal(t, expected, actual.Get(), "size")
+}
+
+func Test_iteratorStream_Limit(t *testing.T) {
+	count := 5
+	stream := FromArray(streamTestData).Limit(count)
+	data := streamTestData[0:count]
+
+	var o fluent.Option[int]
+	for i := range data {
+		val := data[i]
+		o = stream.next()
+
+		assert.NotNil(t, o, "option")
+		assert.True(t, o.Present(), "present")
+		assert.Equal(t, val, o.Get(), "value")
+	}
+
+	o = stream.next()
+	assert.NotNil(t, o, "option")
+	assert.False(t, o.Present(), "present")
+}
+
+func Test_limit_Size_larger(t *testing.T) {
+	max := 5
+	expected := 5
+	actual := limit[int]{
+		max:    max,
+		source: iterator.FromArray(streamTestData),
+	}.Size()
+
+	assert.NotNil(t, actual, "option")
+	assert.True(t, actual.Present(), "present")
+	assert.Equal(t, expected, actual.Get(), "size")
+}
+
+func Test_limit_Size_short(t *testing.T) {
+	max := 12
+	expected := len(streamTestData)
+	actual := limit[int]{
+		max:    max,
+		source: iterator.FromArray(streamTestData),
+	}.Size()
+
+	assert.NotNil(t, actual, "option")
+	assert.True(t, actual.Present(), "present")
+	assert.Equal(t, expected, actual.Get(), "size")
+}
+
+func Test_iteratorStream_Filter(t *testing.T) {
+	isEven := func(n int) bool {
+		return n%2 == 0
+	}
+	stream := FromArray(streamTestData).Filter(isEven)
+	data := []int{2, 4, 6, 8, 10}
+
+	var o fluent.Option[int]
+	for i := range data {
+		val := data[i]
+		o = stream.next()
+
+		assert.NotNil(t, o, "option")
+		assert.True(t, o.Present(), "present")
+		assert.Equal(t, val, o.Get(), "value")
+	}
+
+	o = stream.next()
+	assert.NotNil(t, o, "option")
+	assert.False(t, o.Present(), "present")
+}
+
+func Test_iteratorStream_Map(t *testing.T) {
+	double := func(n int) int {
+		return n * 2
+	}
+	stream := FromArray(streamTestData).Map(double)
+
+	var o fluent.Option[int]
+	for i := range streamTestData {
+		val := streamTestData[i] * 2
+		o = stream.next()
+
+		assert.NotNil(t, o, "option")
+		assert.True(t, o.Present(), "present")
+		assert.Equal(t, val, o.Get(), "value")
+	}
+
+	o = stream.next()
+	assert.NotNil(t, o, "option")
+	assert.False(t, o.Present(), "present")
+}
+
+func Test_mapper_Size(t *testing.T) {
+	expected := len(streamTestData)
+	actual := mapper[int]{
+		mapper: func(i int) int { return i },
+		source: iterator.FromArray(streamTestData),
+	}.Size()
+
+	assert.NotNil(t, actual, "option")
+	assert.True(t, actual.Present(), "present")
+	assert.Equal(t, expected, actual.Get(), "size")
+}
+
+func Test_iteratorStream_Count(t *testing.T) {
+	size := FromArray(streamTestData).Count()
+	assert.Equal(t, len(streamTestData), size, "size")
+}
+
+func Test_iteratorStream_Array_even(t *testing.T) {
+	isEven := func(n int) bool {
+		return n%2 == 0
+	}
+	arr := FromArray(streamTestData).Filter(isEven).Array()
+	assert.Equal(t, len(streamTestData)/2, len(arr), "size")
+
+	for _, val := range arr {
+		assert.True(t, val%2 == 0, "event val")
+	}
+}
+
+func Test_iteratorStream_Array(t *testing.T) {
+	arr := FromArray(streamTestData).Array()
+	for i := 0; i < len(streamTestData); i++ {
+		actual := int(streamTestData[i])
+		expected := int(arr[i])
+		assert.Equal(t, expected, actual, "values")
+	}
+	assert.Equal(t, streamTestData, arr, "arrays")
+}
+
+func Test_iteratorStream_Peek(t *testing.T) {
+	count := 0
+	arr := make([]int, len(streamTestData))
+
+	counter := func(val int) {
+		arr[count] = val
+		count++
+	}
+
+	FromArray(streamTestData).Peek(counter).Count()
+
+	assert.Equal(t, len(streamTestData), count, "size")
+	assert.Equal(t, streamTestData, arr, "size")
+}
+
+func Test_peek_Size(t *testing.T) {
+	expected := len(streamTestData)
+	actual := peek[int]{
+		consumer: func(i int) {},
+		source:   iterator.FromArray(streamTestData),
+	}.Size()
+
+	assert.NotNil(t, actual, "option")
+	assert.True(t, actual.Present(), "present")
+	assert.Equal(t, expected, actual.Get(), "size")
+}
+
+func Test_iteratorStream_ForEach(t *testing.T) {
+	count := 0
+	arr := make([]int, len(streamTestData))
+
+	counter := func(val int) {
+		arr[count] = val
+		count++
+	}
+
+	FromArray(streamTestData).ForEach(counter)
+
+	assert.Equal(t, len(streamTestData), count, "size")
+	assert.Equal(t, streamTestData, arr, "size")
+}
