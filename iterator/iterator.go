@@ -21,12 +21,12 @@ func Func[T any](fn func() fluent.Option[T]) Iterator[T] {
 }
 
 type Sized interface {
-	Size() fluent.Option[int]
+	Size() int
 }
 
 func Size[T any](it Iterator[T]) fluent.Option[int] {
 	if withSize, ok := it.(Sized); ok {
-		return withSize.Size()
+		return fluent.Present(withSize.Size())
 	} else {
 		return fluent.Empty[int]()
 	}
