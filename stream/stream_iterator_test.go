@@ -12,18 +12,19 @@ var streamTestData []int = []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 
 func Test_iteratorStream_next(t *testing.T) {
 	stream := FromArray(streamTestData)
+	it := stream.Iterator()
 
 	var o fluent.Option[int]
 	for i := range streamTestData {
 		val := streamTestData[i]
-		o = stream.next()
+		o = it.Next()
 
 		assert.NotNil(t, o, "option")
 		assert.True(t, o.Present(), "present")
 		assert.Equal(t, val, o.Get(), "value")
 	}
 
-	o = stream.next()
+	o = it.Next()
 	assert.NotNil(t, o, "option")
 	assert.False(t, o.Present(), "present")
 }
@@ -31,19 +32,20 @@ func Test_iteratorStream_next(t *testing.T) {
 func Test_iteratorStream_Skip(t *testing.T) {
 	count := 5
 	stream := FromArray(streamTestData).Skip(count)
+	it := stream.Iterator()
 	data := streamTestData[count:]
 
 	var o fluent.Option[int]
 	for i := range data {
 		val := data[i]
-		o = stream.next()
+		o = it.Next()
 
 		assert.NotNil(t, o, "option")
 		assert.True(t, o.Present(), "present")
 		assert.Equal(t, val, o.Get(), "value")
 	}
 
-	o = stream.next()
+	o = it.Next()
 	assert.NotNil(t, o, "option")
 	assert.False(t, o.Present(), "present")
 }
@@ -51,8 +53,9 @@ func Test_iteratorStream_Skip(t *testing.T) {
 func Test_iteratorStream_Skip_short(t *testing.T) {
 	count := 11
 	stream := FromArray(streamTestData).Skip(count)
+	it := stream.Iterator()
 
-	o := stream.next()
+	o := it.Next()
 	assert.NotNil(t, o, "option")
 	assert.False(t, o.Present(), "present")
 }
@@ -87,18 +90,19 @@ func Test_iteratorStream_Limit(t *testing.T) {
 	count := 5
 	stream := FromArray(streamTestData).Limit(count)
 	data := streamTestData[0:count]
+	it := stream.Iterator()
 
 	var o fluent.Option[int]
 	for i := range data {
 		val := data[i]
-		o = stream.next()
+		o = it.Next()
 
 		assert.NotNil(t, o, "option")
 		assert.True(t, o.Present(), "present")
 		assert.Equal(t, val, o.Get(), "value")
 	}
 
-	o = stream.next()
+	o = it.Next()
 	assert.NotNil(t, o, "option")
 	assert.False(t, o.Present(), "present")
 }
@@ -134,19 +138,20 @@ func Test_iteratorStream_Filter(t *testing.T) {
 		return n%2 == 0
 	}
 	stream := FromArray(streamTestData).Filter(isEven)
+	it := stream.Iterator()
 	data := []int{2, 4, 6, 8, 10}
 
 	var o fluent.Option[int]
 	for i := range data {
 		val := data[i]
-		o = stream.next()
+		o = it.Next()
 
 		assert.NotNil(t, o, "option")
 		assert.True(t, o.Present(), "present")
 		assert.Equal(t, val, o.Get(), "value")
 	}
 
-	o = stream.next()
+	o = it.Next()
 	assert.NotNil(t, o, "option")
 	assert.False(t, o.Present(), "present")
 }
@@ -156,18 +161,19 @@ func Test_iteratorStream_Map(t *testing.T) {
 		return n * 2
 	}
 	stream := FromArray(streamTestData).Map(double)
+	it := stream.Iterator()
 
 	var o fluent.Option[int]
 	for i := range streamTestData {
 		val := streamTestData[i] * 2
-		o = stream.next()
+		o = it.Next()
 
 		assert.NotNil(t, o, "option")
 		assert.True(t, o.Present(), "present")
 		assert.Equal(t, val, o.Get(), "value")
 	}
 
-	o = stream.next()
+	o = it.Next()
 	assert.NotNil(t, o, "option")
 	assert.False(t, o.Present(), "present")
 }

@@ -6,7 +6,6 @@ import (
 )
 
 type Stream[T any] interface {
-	next() fluent.Option[T]
 	Skip(count int) Stream[T]
 	Limit(max int) Stream[T]
 	Filter(mapper func(T) bool) Stream[T]
@@ -38,7 +37,8 @@ func FromIterator[T any](it iterator.Iterator[T]) Stream[T] {
 }
 
 func Map[A any, R any](s Stream[A], mapper func(A) R) Stream[R] {
+	it := s.Iterator()
 	return FromIterator(iterator.Func(func() fluent.Option[R] {
-		return fluent.MapOption(s.next(), mapper)
+		return fluent.MapOption(it.Next(), mapper)
 	}))
 }

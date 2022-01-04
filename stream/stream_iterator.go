@@ -9,10 +9,6 @@ type iteratorStream[T any] struct {
 	iterator iterator.Iterator[T]
 }
 
-func (s iteratorStream[T]) next() fluent.Option[T] {
-	return s.iterator.Next()
-}
-
 // Skip
 
 type skip[T any] struct {
