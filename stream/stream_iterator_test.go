@@ -6,6 +6,7 @@ import (
 
 	"github.com/mikhasd/fluent"
 	"github.com/mikhasd/fluent/iterator"
+	"github.com/mikhasd/fluent/set"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -287,6 +288,9 @@ func Test_iteratorStream_ForEach_Parallel(t *testing.T) {
 
 	FromArray(streamTestData).Parallel().ForEach(counter)
 
+	originalSet := set.FromArray(streamTestData)
+	processedSet := set.FromArray(arr)
+
 	assert.Equal(t, len(streamTestData), count, "size")
-	assert.Equal(t, streamTestData, arr, "size")
+	assert.True(t, processedSet.ContainsAll(originalSet), "content")
 }

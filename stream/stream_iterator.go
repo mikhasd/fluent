@@ -207,16 +207,16 @@ func (s *iteratorStream[T]) ForEach(fn func(T)) {
 
 func (s *iteratorStream[T]) parallelForEach(fn func(T)) {
 	it := s.iterator
-	var iteratorDone bool = false
+	var iteratorDone int32 = 0
 	var wg sync.WaitGroup
 
-	for !iteratorDone {
-		go func(done *bool) {
+	for atomic.LoadInt32(&iteratorDone) == 0 {
+		go func(done *int32) {
 			wg.Add(1)
 			if o := it.Next(); o.Present() {
 				fn(o.Get())
 			} else {
-				*done = true
+				atomic.StoreInt32(done, 1)
 			}
 			wg.Done()
 		}(&iteratorDone)
