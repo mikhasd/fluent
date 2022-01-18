@@ -292,3 +292,18 @@ func Test_iteratorStream_ForEach_Parallel(t *testing.T) {
 	assert.Equal(t, int32(len(streamTestData)), count, "size")
 	assert.True(t, processedSet.ContainsAll(originalSet), "content")
 }
+
+func Test_iteratorStream_Array_Parallel_NotSized(t *testing.T) {
+
+	even := func(val int) bool {
+		return val%2 == 0
+	}
+
+	arr := FromArray(streamTestData).Parallel().Filter(even).Array()
+
+	originalSet := set.FromArray(streamTestData)
+	processedSet := set.FromArray(arr)
+
+	assert.Equal(t, len(streamTestData)/2, len(arr), "size")
+	assert.True(t, originalSet.ContainsAll(processedSet), "content")
+}
