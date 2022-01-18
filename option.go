@@ -11,7 +11,7 @@ package fluent
 // std::option.
 type Option[T any] interface {
 	// Returns true if a value is present.
-	Present() bool
+	IsPresent() bool
 	// Gets the Option value or panics if empty
 	Get() T
 	// Applies the provided mapper function over the Option value, if present.
@@ -66,7 +66,7 @@ func OfNillable[T any](ref *T) Option[*T] {
 // If the Option is empty, the mapper is not executed and an empty Option is
 // returned.
 func MapOption[T any, R any](o Option[T], mapper func(T) R) Option[R] {
-	if o.Present() {
+	if o.IsPresent() {
 		return Present(mapper(o.Get()))
 	} else {
 		return Empty[R]()

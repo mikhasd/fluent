@@ -10,7 +10,7 @@ func Test_emptyIterator_Next(t *testing.T) {
 	it := emptyIterator[int]{}
 	o := it.Next()
 	assert.NotNil(t, o, "option")
-	assert.False(t, o.Present(), "present")
+	assert.False(t, o.IsPresent(), "present")
 }
 
 func Test_emptyIterator_Size(t *testing.T) {
@@ -18,7 +18,6 @@ func Test_emptyIterator_Size(t *testing.T) {
 
 	o := Size(it)
 	assert.NotNil(t, o, "option")
-	assert.True(t, o.Present(), "present")
+	assert.True(t, o.IsPresent(), "present")
 	assert.Equal(t, 0, o.Get())
-
 }

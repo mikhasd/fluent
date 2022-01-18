@@ -11,7 +11,7 @@ const value = 987654231
 
 func Test_OptionPresent_Present(t *testing.T) {
 	o := Present(value)
-	assert.True(t, o.Present())
+	assert.True(t, o.IsPresent())
 }
 
 func Test_OptionPresent_Get(t *testing.T) {
@@ -35,7 +35,7 @@ func Test_OptionPresent_Map(t *testing.T) {
 
 	actual := o.Get()
 
-	assert.True(t, o.Present(), "present")
+	assert.True(t, o.IsPresent(), "present")
 	assert.True(t, *called, "mapper called")
 	assert.Equal(t, value*2, actual)
 }
@@ -67,7 +67,7 @@ func Test_OptionPresent_Or(t *testing.T) {
 		return Present(expected)
 	})
 
-	assert.True(t, actual.Present(), "present")
+	assert.True(t, actual.IsPresent(), "present")
 	assert.Equal(t, value, actual.Get())
 }
 
@@ -102,7 +102,7 @@ func Test_OptionPresent_Filter_Match(t *testing.T) {
 		assert.Equal(t, value, i, "value")
 		return true
 	})
-	assert.True(t, o.Present(), "present")
+	assert.True(t, o.IsPresent(), "present")
 	assert.True(t, *called, "called")
 }
 
@@ -115,7 +115,7 @@ func Test_OptionPresent_Filter_Mismatch(t *testing.T) {
 		assert.Equal(t, value, i, "value")
 		return false
 	})
-	assert.False(t, o.Present(), "present")
+	assert.False(t, o.IsPresent(), "present")
 	assert.True(t, *called, "called")
 }
 

@@ -16,12 +16,12 @@ func Test_singleItemIterator_Next(t *testing.T) {
 
 	o := it.Next()
 	assert.NotNil(t, o, "option")
-	assert.True(t, o.Present(), "present")
+	assert.True(t, o.IsPresent(), "present")
 	assert.Equal(t, singleTestData, o.Get())
 
 	o = it.Next()
 	assert.NotNil(t, o, "option")
-	assert.False(t, o.Present(), "present")
+	assert.False(t, o.IsPresent(), "present")
 }
 
 func Test_singleItemIterator_Size(t *testing.T) {
@@ -32,7 +32,7 @@ func Test_singleItemIterator_Size(t *testing.T) {
 
 	o := Size(it)
 	assert.NotNil(t, o, "option")
-	assert.True(t, o.Present(), "present")
+	assert.True(t, o.IsPresent(), "present")
 	assert.Equal(t, 1, o.Get())
 
 }

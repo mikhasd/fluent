@@ -6,7 +6,7 @@ type present[T any] struct {
 	value T
 }
 
-func (p present[T]) Present() bool {
+func (p present[T]) IsPresent() bool {
 	return true
 }
 

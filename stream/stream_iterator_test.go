@@ -2,6 +2,7 @@ package stream
 
 import (
 	"fmt"
+	"sync/atomic"
 	"testing"
 
 	"github.com/mikhasd/fluent"
@@ -22,13 +23,13 @@ func Test_iteratorStream_next(t *testing.T) {
 		o = it.Next()
 
 		assert.NotNil(t, o, "option")
-		assert.True(t, o.Present(), "present")
+		assert.True(t, o.IsPresent(), "present")
 		assert.Equal(t, val, o.Get(), "value")
 	}
 
 	o = it.Next()
 	assert.NotNil(t, o, "option")
-	assert.False(t, o.Present(), "present")
+	assert.False(t, o.IsPresent(), "present")
 }
 
 func Test_iteratorStream_Skip(t *testing.T) {
@@ -43,13 +44,13 @@ func Test_iteratorStream_Skip(t *testing.T) {
 		o = it.Next()
 
 		assert.NotNil(t, o, "option")
-		assert.True(t, o.Present(), "present")
+		assert.True(t, o.IsPresent(), "present")
 		assert.Equal(t, val, o.Get(), "value")
 	}
 
 	o = it.Next()
 	assert.NotNil(t, o, "option")
-	assert.False(t, o.Present(), "present")
+	assert.False(t, o.IsPresent(), "present")
 }
 
 func Test_iteratorStream_Skip_short(t *testing.T) {
@@ -59,7 +60,7 @@ func Test_iteratorStream_Skip_short(t *testing.T) {
 
 	o := it.Next()
 	assert.NotNil(t, o, "option")
-	assert.False(t, o.Present(), "present")
+	assert.False(t, o.IsPresent(), "present")
 }
 
 func Test_skip_Size_larger(t *testing.T) {
@@ -71,7 +72,7 @@ func Test_skip_Size_larger(t *testing.T) {
 	}.Size()
 
 	assert.NotNil(t, actual, "option")
-	assert.True(t, actual.Present(), "present")
+	assert.True(t, actual.IsPresent(), "present")
 	assert.Equal(t, expected, actual.Get(), "size")
 }
 
@@ -84,7 +85,7 @@ func Test_skip_Size_short(t *testing.T) {
 	}.Size()
 
 	assert.NotNil(t, actual, "option")
-	assert.True(t, actual.Present(), "present")
+	assert.True(t, actual.IsPresent(), "present")
 	assert.Equal(t, expected, actual.Get(), "size")
 }
 
@@ -100,13 +101,13 @@ func Test_iteratorStream_Limit(t *testing.T) {
 		o = it.Next()
 
 		assert.NotNil(t, o, "option")
-		assert.True(t, o.Present(), "present")
+		assert.True(t, o.IsPresent(), "present")
 		assert.Equal(t, val, o.Get(), "value")
 	}
 
 	o = it.Next()
 	assert.NotNil(t, o, "option")
-	assert.False(t, o.Present(), "present")
+	assert.False(t, o.IsPresent(), "present")
 }
 
 func Test_limit_Size_larger(t *testing.T) {
@@ -118,7 +119,7 @@ func Test_limit_Size_larger(t *testing.T) {
 	}.Size()
 
 	assert.NotNil(t, actual, "option")
-	assert.True(t, actual.Present(), "present")
+	assert.True(t, actual.IsPresent(), "present")
 	assert.Equal(t, expected, actual.Get(), "size")
 }
 
@@ -131,7 +132,7 @@ func Test_limit_Size_short(t *testing.T) {
 	}.Size()
 
 	assert.NotNil(t, actual, "option")
-	assert.True(t, actual.Present(), "present")
+	assert.True(t, actual.IsPresent(), "present")
 	assert.Equal(t, expected, actual.Get(), "size")
 }
 
@@ -149,13 +150,13 @@ func Test_iteratorStream_Filter(t *testing.T) {
 		o = it.Next()
 
 		assert.NotNil(t, o, "option")
-		assert.True(t, o.Present(), "present")
+		assert.True(t, o.IsPresent(), "present")
 		assert.Equal(t, val, o.Get(), "value")
 	}
 
 	o = it.Next()
 	assert.NotNil(t, o, "option")
-	assert.False(t, o.Present(), "present")
+	assert.False(t, o.IsPresent(), "present")
 }
 
 func Test_iteratorStream_Map(t *testing.T) {
@@ -171,13 +172,13 @@ func Test_iteratorStream_Map(t *testing.T) {
 		o = it.Next()
 
 		assert.NotNil(t, o, "option")
-		assert.True(t, o.Present(), "present")
+		assert.True(t, o.IsPresent(), "present")
 		assert.Equal(t, val, o.Get(), "value")
 	}
 
 	o = it.Next()
 	assert.NotNil(t, o, "option")
-	assert.False(t, o.Present(), "present")
+	assert.False(t, o.IsPresent(), "present")
 }
 
 func Test_mapper_Size(t *testing.T) {
@@ -188,7 +189,7 @@ func Test_mapper_Size(t *testing.T) {
 	}.Size()
 
 	assert.NotNil(t, actual, "option")
-	assert.True(t, actual.Present(), "present")
+	assert.True(t, actual.IsPresent(), "present")
 	assert.Equal(t, expected, actual.Get(), "size")
 }
 
@@ -217,8 +218,8 @@ func Test_iteratorStream_Array_even(t *testing.T) {
 func Test_iteratorStream_Array(t *testing.T) {
 	arr := FromArray(streamTestData).Array()
 	for i := 0; i < len(streamTestData); i++ {
-		actual := int(streamTestData[i])
-		expected := int(arr[i])
+		actual := int(arr[i])
+		expected := int(streamTestData[i])
 		assert.Equal(t, expected, actual, "values")
 	}
 	assert.Equal(t, streamTestData, arr, "arrays")
@@ -257,7 +258,7 @@ func Test_peek_Size(t *testing.T) {
 	}.Size()
 
 	assert.NotNil(t, actual, "option")
-	assert.True(t, actual.Present(), "present")
+	assert.True(t, actual.IsPresent(), "present")
 	assert.Equal(t, expected, actual.Get(), "size")
 }
 
@@ -265,7 +266,7 @@ func Test_iteratorStream_ForEach(t *testing.T) {
 	count := 0
 	arr := make([]int, len(streamTestData))
 
-	counter := func(val int) {
+	counter := func(_, val int) {
 		arr[count] = val
 		count++
 	}
@@ -277,13 +278,13 @@ func Test_iteratorStream_ForEach(t *testing.T) {
 }
 
 func Test_iteratorStream_ForEach_Parallel(t *testing.T) {
-	count := 0
+	var count int32 = 0
 	arr := make([]int, len(streamTestData))
 
-	counter := func(val int) {
+	counter := func(_, val int) {
 		fmt.Println("parallel", val)
-		arr[count] = val
-		count++
+		arr[atomic.LoadInt32(&count)] = val
+		atomic.AddInt32(&count, 1)
 	}
 
 	FromArray(streamTestData).Parallel().ForEach(counter)
@@ -291,6 +292,6 @@ func Test_iteratorStream_ForEach_Parallel(t *testing.T) {
 	originalSet := set.FromArray(streamTestData)
 	processedSet := set.FromArray(arr)
 
-	assert.Equal(t, len(streamTestData), count, "size")
+	assert.Equal(t, int32(len(streamTestData)), count, "size")
 	assert.True(t, processedSet.ContainsAll(originalSet), "content")
 }

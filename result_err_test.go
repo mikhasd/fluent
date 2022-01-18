@@ -26,7 +26,7 @@ func Test_ResultErr_Ok(t *testing.T) {
 
 	ok := r.Ok()
 
-	assert.False(t, ok.Present(), "present")
+	assert.False(t, ok.IsPresent(), "present")
 }
 
 func Test_ResultErr_Err(t *testing.T) {
@@ -34,7 +34,7 @@ func Test_ResultErr_Err(t *testing.T) {
 
 	e := r.Err()
 
-	assert.True(t, e.Present(), "present")
+	assert.True(t, e.IsPresent(), "present")
 }
 
 func Test_ResultErr_Map(t *testing.T) {

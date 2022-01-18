@@ -1,7 +1,6 @@
 package iterator
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/mikhasd/fluent"
@@ -22,13 +21,13 @@ func Test_FuncIterator_Next(t *testing.T) {
 
 	o := it.Next()
 	assert.NotNil(t, o, "option")
-	assert.True(t, o.Present(), "present")
+	assert.True(t, o.IsPresent(), "present")
 	assert.Equal(t, value, o.Get(), "value")
 
 	o = it.Next()
 
 	assert.NotNil(t, o, "option")
-	assert.False(t, o.Present(), "present")
+	assert.False(t, o.IsPresent(), "present")
 }
 
 func Test_FuncIterator_Size(t *testing.T) {
@@ -38,7 +37,7 @@ func Test_FuncIterator_Size(t *testing.T) {
 
 	size := Size(it)
 	assert.NotNil(t, size, "option")
-	assert.False(t, size.Present(), "present")
+	assert.False(t, size.IsPresent(), "present")
 }
 
 func Test_Of_single(t *testing.T) {
@@ -54,22 +53,4 @@ func Test_Of_many(t *testing.T) {
 func Test_FromArray_empty(t *testing.T) {
 	it := FromArray([]int{})
 	assert.IsType(t, &emptyIterator[int]{}, it)
-}
-
-func Test_Parallel(t *testing.T) {
-	it := FromArray([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30})
-	stop := new(bool)
-	*stop = false
-
-	for !*stop {
-		fmt.Println("invoking")
-		go func() {
-			o := it.Next()
-			if o.Present() {
-				fmt.Println("parallel", o.Get())
-			} else {
-				*stop = true
-			}
-		}()
-	}
 }

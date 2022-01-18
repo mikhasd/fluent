@@ -28,6 +28,6 @@ func (it *arrayIterator[T]) Next() fluent.Option[T] {
 }
 
 // Implements iterator.Sized interface
-func (it *arrayIterator[T]) Size() int {
-	return len(it.data)
+func (it *arrayIterator[T]) Size() fluent.Option[int] {
+	return fluent.Present(len(it.data))
 }

@@ -38,7 +38,7 @@ func Test_MapKeys(t *testing.T) {
 
 	count := 0
 	var o fluent.Option[string]
-	for o = keys.Next(); o.Present(); o = keys.Next() {
+	for o = keys.Next(); o.IsPresent(); o = keys.Next() {
 		count++
 		val := o.Get()
 		assert.Contains(t, mapTestKeys, val, "value")
@@ -46,7 +46,7 @@ func Test_MapKeys(t *testing.T) {
 
 	assert.Equal(t, len(mapTestKeys), count, "size")
 	assert.NotNil(t, o, "option")
-	assert.False(t, o.Present(), "present")
+	assert.False(t, o.IsPresent(), "present")
 }
 
 func Test_MapValues(t *testing.T) {
@@ -55,7 +55,7 @@ func Test_MapValues(t *testing.T) {
 	count := 0
 
 	var o fluent.Option[int]
-	for o = values.Next(); o.Present(); o = values.Next() {
+	for o = values.Next(); o.IsPresent(); o = values.Next() {
 		count++
 		val := o.Get()
 		assert.Contains(t, mapTestValues, val, "value")
@@ -63,7 +63,7 @@ func Test_MapValues(t *testing.T) {
 
 	assert.Equal(t, len(mapTestValues), count, "size")
 	assert.NotNil(t, o, "option")
-	assert.False(t, o.Present(), "present")
+	assert.False(t, o.IsPresent(), "present")
 }
 
 func Test_mapIterator_Next(t *testing.T) {
@@ -71,7 +71,7 @@ func Test_mapIterator_Next(t *testing.T) {
 
 	count := 0
 	var o fluent.Option[MapEntry[string, int]]
-	for o = it.Next(); o.Present(); o = it.Next() {
+	for o = it.Next(); o.IsPresent(); o = it.Next() {
 		count++
 		kv := o.Get()
 		val, found := mapTestData[kv.Key]
@@ -81,6 +81,6 @@ func Test_mapIterator_Next(t *testing.T) {
 
 	assert.Equal(t, len(mapTestValues), count, "size")
 	assert.NotNil(t, o, "option")
-	assert.False(t, o.Present(), "present")
+	assert.False(t, o.IsPresent(), "present")
 
 }

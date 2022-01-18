@@ -69,13 +69,13 @@ func Test_MapSet_Iterator(t *testing.T) {
 
 	for i := 0; i < len(data); i++ {
 		o = it.Next()
-		assert.True(t, o.Present(), "present")
+		assert.True(t, o.IsPresent(), "present")
 		assert.Contains(t, data, o.Get(), "value")
 	}
 
 	o = it.Next()
 
-	assert.False(t, o.Present(), "last present")
+	assert.False(t, o.IsPresent(), "last present")
 }
 
 func Test_MapSet_ForEach(t *testing.T) {

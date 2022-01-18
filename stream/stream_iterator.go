@@ -35,7 +35,7 @@ func (s *skip[T]) Next() fluent.Option[T] {
 	if !s.skipped {
 		for i := 0; i < s.count; i++ {
 			o := s.source.Next()
-			if !o.Present() {
+			if !o.IsPresent() {
 				s.skipped = true
 				return o
 			}
@@ -102,7 +102,7 @@ type filter[T any] struct {
 
 func (f filter[T]) Next() fluent.Option[T] {
 	o := f.source.Next()
-	for o.Present() && !f.filter(o.Get()) {
+	for o.IsPresent() && !f.filter(o.Get()) {
 		o = f.source.Next()
 	}
 	return o
@@ -193,43 +193,68 @@ func (s *iteratorStream[T]) Parallel() Stream[T] {
 
 // For Each
 
-func (s *iteratorStream[T]) ForEach(fn func(T)) {
+func (s *iteratorStream[T]) ForEach(fn func(int, T)) {
 	it := s.iterator
 	if s.parallel {
-		s.parallelForEach(fn)
+		size := iterator.Size(s.iterator)
+		if size.IsPresent() {
+			s.sizedParallelForEach(fn, size.Get())
+		} else {
+			s.parallelForEach(fn)
+		}
 	} else {
-		for o := it.Next(); o.Present(); o = it.Next() {
-			fn(o.Get())
+		var index int = 0
+		for o := it.Next(); o.IsPresent(); o = it.Next() {
+			fn(index, o.Get())
+			index++
 		}
 	}
 
 }
 
-func (s *iteratorStream[T]) parallelForEach(fn func(T)) {
+func (s *iteratorStream[T]) parallelForEach(fn func(int, T)) {
 	it := s.iterator
-	var iteratorDone int32 = 0
+	var done int32 = 0
+	var index int32 = 0
 	var wg sync.WaitGroup
 
-	for atomic.LoadInt32(&iteratorDone) == 0 {
-		go func(done *int32) {
-			wg.Add(1)
-			if o := it.Next(); o.Present() {
-				fn(o.Get())
+	for atomic.LoadInt32(&done) == 0 {
+		wg.Add(1)
+		go func() {
+			if o := it.Next(); o.IsPresent() {
+				i := atomic.LoadInt32(&index)
+				fn(int(i), o.Get())
+				atomic.AddInt32(&index, 1)
 			} else {
-				atomic.StoreInt32(done, 1)
+				atomic.CompareAndSwapInt32(&done, 0, 1)
 			}
 			wg.Done()
-		}(&iteratorDone)
+		}()
 	}
 	wg.Wait()
+}
 
+func (s *iteratorStream[T]) sizedParallelForEach(fn func(int, T), size int) {
+	it := s.iterator
+	var wg sync.WaitGroup
+
+	wg.Add(size)
+	for i := 0; i < size; i++ {
+		go func(index int) {
+			if o := it.Next(); o.IsPresent() {
+				fn(int(index), o.Get())
+			}
+			wg.Done()
+		}(i)
+	}
+	wg.Wait()
 }
 
 // Count
 
 func (s *iteratorStream[T]) Count() int {
 	var counter int32
-	s.ForEach(func(_ T) {
+	s.ForEach(func(_ int, _ T) {
 		atomic.AddInt32(&counter, 1)
 	})
 	return int(counter)
@@ -243,11 +268,31 @@ func (s *iteratorStream[T]) Iterator() iterator.Iterator[T] {
 
 // Array
 func (s *iteratorStream[T]) Array() []T {
-	if s.parallel {
-		return s.toArrayParallel()
+	size := iterator.Size(s.iterator)
+
+	var arr []T
+
+	if size.IsPresent() {
+		arr = make([]T, size.Get())
+		s.ForEach(func(index int, val T) {
+			arr[index] = val
+		})
+	} else if s.parallel {
+		var mtx sync.Mutex
+		arr = make([]T, 0, 10)
+		s.ForEach(func(_ int, val T) {
+			mtx.Lock()
+			arr = append(arr, val)
+			mtx.Unlock()
+		})
 	} else {
-		return s.toArray()
+		arr = make([]T, 0, 10)
+		s.ForEach(func(_ int, val T) {
+			arr = append(arr, val)
+		})
 	}
+
+	return arr
 }
 
 func (s *iteratorStream[T]) toArray() []T {
@@ -263,7 +308,7 @@ func (s *iteratorStream[T]) toArray() []T {
 
 	unknownSize := func() []T {
 		arr := make([]T, 0, 10)
-		for o := s.iterator.Next(); o.Present(); o = s.iterator.Next() {
+		for o := s.iterator.Next(); o.IsPresent(); o = s.iterator.Next() {
 			arr = append(arr, o.Get())
 		}
 		return arr
@@ -291,20 +336,18 @@ func (s *iteratorStream[T]) toArrayParallel() []T {
 	unknownSize := func() []T {
 		var wq sync.WaitGroup
 		var arr []T
-
-		done := new(bool)
-		*done = false
+		var done int32 = 0
 
 		elements := make(chan T)
 
-		for !*done {
+		for atomic.LoadInt32(&done) == 0 {
 			go func() {
-				if o := s.iterator.Next(); o.Present() {
+				if o := s.iterator.Next(); o.IsPresent() {
 					wq.Add(1)
 					elem := o.Get()
 					elements <- elem
 				} else {
-					*done = true
+					atomic.CompareAndSwapInt32(&done, 0, 1)
 				}
 			}()
 		}
@@ -317,6 +360,7 @@ func (s *iteratorStream[T]) toArrayParallel() []T {
 		}()
 
 		wq.Wait()
+		close(elements)
 		return arr
 	}
 

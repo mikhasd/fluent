@@ -31,7 +31,7 @@ type Stream[T any] interface {
 
 	// ForEach executes the provided `consumer` function on each element of the
 	// stream.
-	ForEach(consumer func(T))
+	ForEach(consumer func(int, T))
 
 	// Peek executes the provided `consumer` function with each element of the
 	// stream and returns a stream with the same elements.

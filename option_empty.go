@@ -4,7 +4,7 @@ import "fmt"
 
 type empty[T any] struct{}
 
-func (e empty[T]) Present() bool {
+func (e empty[T]) IsPresent() bool {
 	return false
 }
 

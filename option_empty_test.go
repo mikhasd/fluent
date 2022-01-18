@@ -9,7 +9,7 @@ import (
 
 func Test_OptionEmpty_Present(t *testing.T) {
 	o := Empty[int]()
-	assert.False(t, o.Present())
+	assert.False(t, o.IsPresent())
 }
 
 func Test_OptionEmpty_Get(t *testing.T) {
@@ -36,7 +36,7 @@ func Test_OptionEmpty_Map(t *testing.T) {
 		return a * 2
 	})
 
-	assert.False(t, o.Present(), "present")
+	assert.False(t, o.IsPresent(), "present")
 	assert.False(t, *called, "mapper called")
 }
 
@@ -65,7 +65,7 @@ func Test_OptionEmpty_Or(t *testing.T) {
 		return Present(expected)
 	})
 
-	assert.True(t, actual.Present(), "present")
+	assert.True(t, actual.IsPresent(), "present")
 	assert.Equal(t, expected, actual.Get())
 }
 
@@ -98,7 +98,7 @@ func Test_OptionEmpty_Filter(t *testing.T) {
 		*called = true
 		return true
 	})
-	assert.False(t, o.Present(), "present")
+	assert.False(t, o.IsPresent(), "present")
 	assert.False(t, *called, "called")
 }
 

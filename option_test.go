@@ -9,13 +9,13 @@ import (
 func Test_OptionFromReference_Empty(t *testing.T) {
 	var val *string
 	option := OfNillable(val)
-	assert.False(t, option.Present())
+	assert.False(t, option.IsPresent())
 }
 
 func Test_OptionFromReference_Present(t *testing.T) {
 	val := "test"
 	option := OfNillable(&val)
-	assert.True(t, option.Present())
+	assert.True(t, option.IsPresent())
 }
 
 func Test_MapOption_Present(t *testing.T) {
@@ -28,7 +28,7 @@ func Test_MapOption_Present(t *testing.T) {
 		return len(str)
 	})
 
-	assert.True(t, actual.Present(), "present")
+	assert.True(t, actual.IsPresent(), "present")
 	assert.True(t, *called, "mapper called")
 	assert.Equal(t, 1, actual.Get())
 }
@@ -43,6 +43,6 @@ func Test_MapOption_Empty(t *testing.T) {
 		return len(str)
 	})
 
-	assert.False(t, actual.Present(), "present")
+	assert.False(t, actual.IsPresent(), "present")
 	assert.False(t, *called, "mapper called")
 }

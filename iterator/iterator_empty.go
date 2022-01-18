@@ -9,6 +9,6 @@ func (i *emptyIterator[T]) Next() fluent.Option[T] {
 }
 
 // Implements iterator.Sized interface
-func (i emptyIterator[T]) Size() int {
-	return 0
+func (i emptyIterator[T]) Size() fluent.Option[int] {
+	return fluent.Present(0)
 }

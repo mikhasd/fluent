@@ -11,7 +11,7 @@ func (s mapSet[T]) Contains(element T) bool {
 
 func (s mapSet[T]) ContainsAll(iter iterator.Iterable[T]) bool {
 	it := iter.Iterator()
-	for o := it.Next(); o.Present(); o = it.Next() {
+	for o := it.Next(); o.IsPresent(); o = it.Next() {
 		el := o.Get()
 		if _, found := s[el]; !found {
 			return false
@@ -26,7 +26,7 @@ func (s mapSet[T]) Add(element T) {
 
 func (s mapSet[T]) AddAll(iter iterator.Iterable[T]) {
 	it := iter.Iterator()
-	for o := it.Next(); o.Present(); o = it.Next() {
+	for o := it.Next(); o.IsPresent(); o = it.Next() {
 		el := o.Get()
 		s[el] = setEntry{}
 	}

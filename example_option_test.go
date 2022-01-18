@@ -28,7 +28,7 @@ func ExampleOption_goodDivision() {
 	message := MapOption(option, String)
 
 	var result string
-	if message.Present() {
+	if message.IsPresent() {
 		result = message.Get()
 	} else {
 		result = "empty"
@@ -43,7 +43,7 @@ func ExampleOption_badDivision() {
 	message := MapOption(option, String)
 
 	var result string
-	if message.Present() {
+	if message.IsPresent() {
 		result = message.Get()
 	} else {
 		result = "empty"

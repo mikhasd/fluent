@@ -14,13 +14,13 @@ func Test_arrayIterator_Next(t *testing.T) {
 	for _, val := range arrayTestData {
 		o := it.Next()
 		assert.NotNil(t, o, "option")
-		assert.True(t, o.Present(), "present")
+		assert.True(t, o.IsPresent(), "present")
 		assert.Equal(t, val, o.Get())
 	}
 
 	o := it.Next()
 	assert.NotNil(t, o, "option")
-	assert.False(t, o.Present(), "present")
+	assert.False(t, o.IsPresent(), "present")
 }
 
 func Test_arrayIterator_Size(t *testing.T) {
@@ -28,7 +28,7 @@ func Test_arrayIterator_Size(t *testing.T) {
 
 	o := Size(it)
 	assert.NotNil(t, o, "option")
-	assert.True(t, o.Present(), "present")
+	assert.True(t, o.IsPresent(), "present")
 	assert.Equal(t, len(arrayTestData), o.Get())
 
 }
@@ -41,11 +41,11 @@ func Test_arrayIterable_Iterator(t *testing.T) {
 	for _, val := range arrayTestData {
 		o := it.Next()
 		assert.NotNil(t, o, "option")
-		assert.True(t, o.Present(), "present")
+		assert.True(t, o.IsPresent(), "present")
 		assert.Equal(t, val, o.Get())
 	}
 
 	o := it.Next()
 	assert.NotNil(t, o, "option")
-	assert.False(t, o.Present(), "present")
+	assert.False(t, o.IsPresent(), "present")
 }
