@@ -1,7 +1,6 @@
 package stream
 
 import (
-	"fmt"
 	"sync/atomic"
 	"testing"
 
@@ -227,12 +226,11 @@ func Test_iteratorStream_Array(t *testing.T) {
 
 func Test_iteratorStream_Array_parallel(t *testing.T) {
 	arr := FromArray(streamTestData).Parallel().Array()
-	for i := 0; i < len(streamTestData); i++ {
-		actual := int(streamTestData[i])
-		expected := int(arr[i])
-		assert.Equal(t, expected, actual, "values")
-	}
-	assert.Equal(t, streamTestData, arr, "arrays")
+
+	expected := set.FromArray(streamTestData)
+	actual := set.FromArray(arr)
+	assert.True(t, expected.ContainsAll(actual), "content")
+	assert.Equal(t, expected.Size(), actual.Size(), "size")
 }
 
 func Test_iteratorStream_Peek(t *testing.T) {
@@ -282,7 +280,6 @@ func Test_iteratorStream_ForEach_Parallel(t *testing.T) {
 	arr := make([]int, len(streamTestData))
 
 	counter := func(_, val int) {
-		fmt.Println("parallel", val)
 		arr[atomic.LoadInt32(&count)] = val
 		atomic.AddInt32(&count, 1)
 	}

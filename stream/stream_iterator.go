@@ -182,6 +182,10 @@ func (c *concurrent[T]) Next() fluent.Option[T] {
 	return o
 }
 
+func (c *concurrent[T]) Size() fluent.Option[int] {
+	return iterator.Size(c.source)
+}
+
 func (s *iteratorStream[T]) Parallel() Stream[T] {
 	return &iteratorStream[T]{
 		parallel: true,
@@ -293,79 +297,4 @@ func (s *iteratorStream[T]) Array() []T {
 	}
 
 	return arr
-}
-
-func (s *iteratorStream[T]) toArray() []T {
-	knownSize := func(size int) []T {
-		arr := make([]T, size)
-
-		for i := 0; i < size; i++ {
-			arr[i] = s.iterator.Next().Get()
-		}
-
-		return arr
-	}
-
-	unknownSize := func() []T {
-		arr := make([]T, 0, 10)
-		for o := s.iterator.Next(); o.IsPresent(); o = s.iterator.Next() {
-			arr = append(arr, o.Get())
-		}
-		return arr
-	}
-
-	return fluent.MapOption(
-		iterator.Size(s.iterator),
-		knownSize,
-	).OrElseGet(unknownSize)
-}
-
-func (s *iteratorStream[T]) toArrayParallel() []T {
-	knownSize := func(size int) []T {
-		arr := make([]T, size)
-
-		for i := 0; i < size; i++ {
-			go func(index int) {
-				arr[index] = s.iterator.Next().Get()
-			}(i)
-		}
-
-		return arr
-	}
-
-	unknownSize := func() []T {
-		var wq sync.WaitGroup
-		var arr []T
-		var done int32 = 0
-
-		elements := make(chan T)
-
-		for atomic.LoadInt32(&done) == 0 {
-			go func() {
-				if o := s.iterator.Next(); o.IsPresent() {
-					wq.Add(1)
-					elem := o.Get()
-					elements <- elem
-				} else {
-					atomic.CompareAndSwapInt32(&done, 0, 1)
-				}
-			}()
-		}
-
-		go func() {
-			for elem := range elements {
-				arr = append(arr, elem)
-				wq.Done()
-			}
-		}()
-
-		wq.Wait()
-		close(elements)
-		return arr
-	}
-
-	return fluent.MapOption(
-		iterator.Size(s.iterator),
-		knownSize,
-	).OrElseGet(unknownSize)
 }

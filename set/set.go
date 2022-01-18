@@ -20,7 +20,7 @@ func New[T comparable]() Set[T] {
 	return make(mapSet[T], 16)
 }
 
-func WithSize[T comparable](size uint) Set[T] {
+func WithSize[T comparable](size int) Set[T] {
 	return make(mapSet[T], size)
 }
 
