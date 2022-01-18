@@ -16,6 +16,7 @@ func (i *singleItemIterator[T]) Next() fluent.Option[T] {
 	}
 }
 
-func (i singleItemIterator[T]) Size() fluent.Option[int] {
-	return fluent.Present(1)
+// Implements iterator.Sized interface
+func (i singleItemIterator[T]) Size() int {
+	return 1
 }

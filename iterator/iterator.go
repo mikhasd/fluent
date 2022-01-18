@@ -34,12 +34,9 @@ func Size[T any](it Iterator[T]) fluent.Option[int] {
 
 func FromArray[T any](elements []T) Iterator[T] {
 	if len(elements) == 0 {
-		return &emptyIterator[T]{}
+		return empty[T]()
 	} else if len(elements) == 1 {
-		return &singleItemIterator[T]{
-			item:     elements[0],
-			consumed: false,
-		}
+		return single(elements[0])
 	} else {
 		return &arrayIterator[T]{
 			data:  elements,
@@ -50,4 +47,15 @@ func FromArray[T any](elements []T) Iterator[T] {
 
 func Of[T any](elements ...T) Iterator[T] {
 	return FromArray(elements)
+}
+
+func empty[T any]() Iterator[T] {
+	return &emptyIterator[T]{}
+}
+
+func single[T any](item T) Iterator[T] {
+	return &singleItemIterator[T]{
+		item:     item,
+		consumed: false,
+	}
 }

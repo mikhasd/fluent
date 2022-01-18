@@ -27,7 +27,7 @@ func (it *arrayIterator[T]) Next() fluent.Option[T] {
 	}
 }
 
-// Implements iterator.sized interface
+// Implements iterator.Sized interface
 func (it *arrayIterator[T]) Size() int {
 	return len(it.data)
 }

@@ -1,6 +1,7 @@
 package stream
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/mikhasd/fluent"
@@ -195,6 +196,11 @@ func Test_iteratorStream_Count(t *testing.T) {
 	assert.Equal(t, len(streamTestData), size, "size")
 }
 
+func Test_iteratorStream_Count_parallel(t *testing.T) {
+	size := FromArray(streamTestData).Parallel().Count()
+	assert.Equal(t, len(streamTestData), size, "size")
+}
+
 func Test_iteratorStream_Array_even(t *testing.T) {
 	isEven := func(n int) bool {
 		return n%2 == 0
@@ -209,6 +215,16 @@ func Test_iteratorStream_Array_even(t *testing.T) {
 
 func Test_iteratorStream_Array(t *testing.T) {
 	arr := FromArray(streamTestData).Array()
+	for i := 0; i < len(streamTestData); i++ {
+		actual := int(streamTestData[i])
+		expected := int(arr[i])
+		assert.Equal(t, expected, actual, "values")
+	}
+	assert.Equal(t, streamTestData, arr, "arrays")
+}
+
+func Test_iteratorStream_Array_parallel(t *testing.T) {
+	arr := FromArray(streamTestData).Parallel().Array()
 	for i := 0; i < len(streamTestData); i++ {
 		actual := int(streamTestData[i])
 		expected := int(arr[i])
@@ -254,6 +270,22 @@ func Test_iteratorStream_ForEach(t *testing.T) {
 	}
 
 	FromArray(streamTestData).ForEach(counter)
+
+	assert.Equal(t, len(streamTestData), count, "size")
+	assert.Equal(t, streamTestData, arr, "size")
+}
+
+func Test_iteratorStream_ForEach_Parallel(t *testing.T) {
+	count := 0
+	arr := make([]int, len(streamTestData))
+
+	counter := func(val int) {
+		fmt.Println("parallel", val)
+		arr[count] = val
+		count++
+	}
+
+	FromArray(streamTestData).Parallel().ForEach(counter)
 
 	assert.Equal(t, len(streamTestData), count, "size")
 	assert.Equal(t, streamTestData, arr, "size")

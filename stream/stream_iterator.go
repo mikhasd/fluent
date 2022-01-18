@@ -1,12 +1,16 @@
 package stream
 
 import (
+	"sync"
+	"sync/atomic"
+
 	"github.com/mikhasd/fluent"
 	"github.com/mikhasd/fluent/iterator"
 )
 
 type iteratorStream[T any] struct {
 	iterator iterator.Iterator[T]
+	parallel bool
 }
 
 // Skip
@@ -43,6 +47,7 @@ func (s *skip[T]) Next() fluent.Option[T] {
 
 func (s *iteratorStream[T]) Skip(count int) Stream[T] {
 	return &iteratorStream[T]{
+		parallel: s.parallel,
 		iterator: &skip[T]{
 			count:   count,
 			skipped: false,
@@ -79,6 +84,7 @@ func (l *limit[T]) Next() fluent.Option[T] {
 
 func (s *iteratorStream[T]) Limit(max int) Stream[T] {
 	return &iteratorStream[T]{
+		parallel: s.parallel,
 		iterator: &limit[T]{
 			max:     max,
 			current: 0,
@@ -104,6 +110,7 @@ func (f filter[T]) Next() fluent.Option[T] {
 
 func (s *iteratorStream[T]) Filter(fn func(T) bool) Stream[T] {
 	return &iteratorStream[T]{
+		parallel: s.parallel,
 		iterator: filter[T]{
 			filter: fn,
 			source: s.iterator,
@@ -128,6 +135,7 @@ func (m mapper[T]) Next() fluent.Option[T] {
 
 func (s *iteratorStream[T]) Map(fn func(T) T) Stream[T] {
 	return &iteratorStream[T]{
+		parallel: s.parallel,
 		iterator: mapper[T]{
 			mapper: fn,
 			source: s.iterator,
@@ -154,9 +162,31 @@ func (p peek[T]) Next() fluent.Option[T] {
 
 func (s *iteratorStream[T]) Peek(consumer func(T)) Stream[T] {
 	return &iteratorStream[T]{
+		parallel: s.parallel,
 		iterator: peek[T]{
 			consumer: consumer,
 			source:   s.iterator,
+		},
+	}
+}
+
+type concurrent[T any] struct {
+	lock   sync.Mutex
+	source iterator.Iterator[T]
+}
+
+func (c *concurrent[T]) Next() fluent.Option[T] {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+	o := c.source.Next()
+	return o
+}
+
+func (s *iteratorStream[T]) Parallel() Stream[T] {
+	return &iteratorStream[T]{
+		parallel: true,
+		iterator: &concurrent[T]{
+			source: s.iterator,
 		},
 	}
 }
@@ -165,20 +195,44 @@ func (s *iteratorStream[T]) Peek(consumer func(T)) Stream[T] {
 
 func (s *iteratorStream[T]) ForEach(fn func(T)) {
 	it := s.iterator
-	for o := it.Next(); o.Present(); o = it.Next() {
-		fn(o.Get())
+	if s.parallel {
+		s.parallelForEach(fn)
+	} else {
+		for o := it.Next(); o.Present(); o = it.Next() {
+			fn(o.Get())
+		}
 	}
+
+}
+
+func (s *iteratorStream[T]) parallelForEach(fn func(T)) {
+	it := s.iterator
+	var iteratorDone bool = false
+	var wg sync.WaitGroup
+
+	for !iteratorDone {
+		go func(done *bool) {
+			wg.Add(1)
+			if o := it.Next(); o.Present() {
+				fn(o.Get())
+			} else {
+				*done = true
+			}
+			wg.Done()
+		}(&iteratorDone)
+	}
+	wg.Wait()
+
 }
 
 // Count
 
 func (s *iteratorStream[T]) Count() int {
-	var counter int
-	it := s.iterator
-	for o := it.Next(); o.Present(); o = it.Next() {
-		counter++
-	}
-	return counter
+	var counter int32
+	s.ForEach(func(_ T) {
+		atomic.AddInt32(&counter, 1)
+	})
+	return int(counter)
 }
 
 // Iterator
@@ -189,6 +243,14 @@ func (s *iteratorStream[T]) Iterator() iterator.Iterator[T] {
 
 // Array
 func (s *iteratorStream[T]) Array() []T {
+	if s.parallel {
+		return s.toArrayParallel()
+	} else {
+		return s.toArray()
+	}
+}
+
+func (s *iteratorStream[T]) toArray() []T {
 	knownSize := func(size int) []T {
 		arr := make([]T, size)
 
@@ -204,6 +266,57 @@ func (s *iteratorStream[T]) Array() []T {
 		for o := s.iterator.Next(); o.Present(); o = s.iterator.Next() {
 			arr = append(arr, o.Get())
 		}
+		return arr
+	}
+
+	return fluent.MapOption(
+		iterator.Size(s.iterator),
+		knownSize,
+	).OrElseGet(unknownSize)
+}
+
+func (s *iteratorStream[T]) toArrayParallel() []T {
+	knownSize := func(size int) []T {
+		arr := make([]T, size)
+
+		for i := 0; i < size; i++ {
+			go func(index int) {
+				arr[index] = s.iterator.Next().Get()
+			}(i)
+		}
+
+		return arr
+	}
+
+	unknownSize := func() []T {
+		var wq sync.WaitGroup
+		var arr []T
+
+		done := new(bool)
+		*done = false
+
+		elements := make(chan T)
+
+		for !*done {
+			go func() {
+				if o := s.iterator.Next(); o.Present() {
+					wq.Add(1)
+					elem := o.Get()
+					elements <- elem
+				} else {
+					*done = true
+				}
+			}()
+		}
+
+		go func() {
+			for elem := range elements {
+				arr = append(arr, elem)
+				wq.Done()
+			}
+		}()
+
+		wq.Wait()
 		return arr
 	}
 
