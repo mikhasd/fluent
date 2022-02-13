@@ -2,7 +2,11 @@ package iterator
 
 import "github.com/mikhasd/fluent"
 
+// An Iterator facilitates traversing a collection of elements of know or
+// unknown size.
 type Iterator[T any] interface {
+	// Next advances the iteration and return the next value.
+	// An empty `fluent.Option` will be returned when the iteration finishes.
 	Next() fluent.Option[T]
 }
 
@@ -32,6 +36,7 @@ func Size[T any](it Iterator[T]) fluent.Option[int] {
 	}
 }
 
+// FromArray creates a new `iterator` for a given array.
 func FromArray[T any](elements []T) Iterator[T] {
 	if len(elements) == 0 {
 		return empty[T]()
@@ -45,6 +50,7 @@ func FromArray[T any](elements []T) Iterator[T] {
 	}
 }
 
+// Of creates a new `Iterator` for the elements provided as arguments.
 func Of[T any](elements ...T) Iterator[T] {
 	return FromArray(elements)
 }

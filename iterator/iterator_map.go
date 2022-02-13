@@ -2,6 +2,7 @@ package iterator
 
 import "github.com/mikhasd/fluent"
 
+// MapKeys creates an `Iterator` with the keys of a given map.
 func MapKeys[K comparable, V any](m map[K]V) Iterator[K] {
 	keys := make([]K, len(m))
 	index := 0
@@ -12,6 +13,7 @@ func MapKeys[K comparable, V any](m map[K]V) Iterator[K] {
 	return FromArray(keys)
 }
 
+// MapValues creates an `Iterator` with the values of a given map.
 func MapValues[K comparable, V any](m map[K]V) Iterator[V] {
 	values := make([]V, len(m))
 	index := 0
@@ -33,6 +35,7 @@ type mapIterator[K comparable, V any] struct {
 	index int
 }
 
+// FromMap creates a new `Iterator` for the keys and values of a given map.
 func FromMap[K comparable, V any](m map[K]V) Iterator[MapEntry[K, V]] {
 	return mapIterator[K, V]{
 		data:  m,

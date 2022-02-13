@@ -30,7 +30,7 @@ This implementation is based on Java's java.util.Optional and Rust's std::option
 type Option[T any] interface {
 
         // Returns true if a value is present.
-        Present() bool
+        IsPresent() bool
 
         // Gets the Option value or panics if empty
         Get() T
@@ -290,3 +290,51 @@ func ExampleResult_badFile() {
 }
 
 ```
+
+# array
+
+The `array` package contains functions to facilitate working with arrays.
+
+## array API
+
+```go
+// Map creates a new array populated with the result of calling the provided
+// `mapper` function on every element of the input array.
+func Map[I any, O any](in []I, mapper func(I) O) []O
+
+// Filter creates a new array with all elements that pass the provided
+// `condition` function.
+func Filter[T any](in []T, condition func(T) bool) []T
+
+```
+
+# Iterator
+
+An Iterator facilitates traversing a collection of elements of know or unknown size. 
+
+## Iterator API
+
+```go
+type Iterator[T any] interface {
+	// Next advances the iteration and return the next value.
+	// An empty `fluent.Option` will be returned when the iteration finishes.
+	Next() fluent.Option[T]
+}
+
+// FromArray creates a new iterator for a given array.
+func FromArray[T any](elements []T) Iterator[T]
+
+// Of creates a new `Iterator` for the elements provided as arguments.
+func Of[T any](elements ...T) Iterator[T]
+
+// MapKeys creates an `Iterator` with the keys of a given map.
+func MapKeys[K comparable, V any](m map[K]V) Iterator[K]
+
+// MapValues creates an `Iterator` with the values of a given map.
+func MapValues[K comparable, V any](m map[K]V) Iterator[V]
+
+// FromMap creates a new `Iterator` for the keys and values of a given map.
+func FromMap[K comparable, V any](m map[K]V) Iterator[MapEntry[K, V]]
+```
+
+# stream
