@@ -12,6 +12,10 @@ Functional constructs (lent from other languages) for Go lang 1.18
 - [Result](#result)
   - [API](#result-api)
   - [Examples](#result-examples)
+- [array](#array)
+  - [API](#array-api)
+- [Iterator](#iterator)
+  - [API](#iterator-api)
 
 # Option
 

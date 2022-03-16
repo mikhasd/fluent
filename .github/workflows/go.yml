@@ -12,14 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GOROOT: /usr/local/go
+      GOVERSION: go1.18.linux-amd64
     steps:
     - uses: actions/checkout@v2
 
     - name: Set up Go
       run: |
-        curl -OL https://go.dev/dl/go1.18beta2.linux-amd64.tar.gz
+        curl -OL https://go.dev/dl/$GOVERSION.tar.gz
         sudo rm -rf $GOROOT
-        sudo tar -C /usr/local -xzf go1.18beta2.linux-amd64.tar.gz
+        sudo tar -C /usr/local -xzf $GOVERSION.tar.gz
 
     - name: Build
       run: $GOROOT/bin/go build -v ./...
