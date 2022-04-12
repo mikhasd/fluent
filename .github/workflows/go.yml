@@ -22,11 +22,11 @@ jobs:
         sudo rm -rf $GOROOT
         sudo tar -C /usr/local -xzf $GOVERSION.tar.gz
 
-    - name: Build
-      run: $GOROOT/bin/go build -v ./...
-
     - name: Test
-      run: $GOROOT/bin/go test -race -v -coverprofile=cover.out -coverpkg=./... ./...
+      run: make test
 
     - name: Upload coverage to codecov.io
       uses: codecov/codecov-action@v1
+
+    - name: Build
+      run: make build
