@@ -2,7 +2,7 @@ package set
 
 import "github.com/mikhasd/fluent/iterator"
 
-type Set[T comparable] interface {
+type Set[T any] interface {
 	Contains(T) bool
 	ContainsAll(iterator.Iterable[T]) bool
 	Add(T)
@@ -12,28 +12,4 @@ type Set[T comparable] interface {
 	Empty() bool
 	Size() int
 	ForEach(fn func(T))
-}
-
-type setEntry struct{}
-
-func New[T comparable]() Set[T] {
-	return make(mapSet[T], 16)
-}
-
-func WithSize[T comparable](size int) Set[T] {
-	return make(mapSet[T], size)
-}
-
-func FromArray[T comparable](arr []T) Set[T] {
-	s := make(mapSet[T], len(arr))
-	for _, el := range arr {
-		s[el] = setEntry{}
-	}
-	return s
-}
-
-func FromIterable[T comparable](iter iterator.Iterable[T]) Set[T] {
-	s := New[T]()
-	s.AddAll(iter)
-	return s
 }

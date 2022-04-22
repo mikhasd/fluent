@@ -2,54 +2,89 @@ package set
 
 import "github.com/mikhasd/fluent/iterator"
 
-type mapSet[T comparable] map[T]setEntry
+type setEntry struct{}
 
-func (s mapSet[T]) Contains(element T) bool {
-	_, found := s[element]
+type mapSet[K comparable, V any] struct {
+	items  map[K]V
+	hasher func(V) K
+}
+
+func (s mapSet[K, V]) Contains(element V) bool {
+	_, found := s.items[s.hasher(element)]
 	return found
 }
 
-func (s mapSet[T]) ContainsAll(iter iterator.Iterable[T]) bool {
+func (s mapSet[K, V]) ContainsAll(iter iterator.Iterable[V]) bool {
 	it := iter.Iterator()
 	for o := it.Next(); o.IsPresent(); o = it.Next() {
 		el := o.Get()
-		if _, found := s[el]; !found {
+		if _, found := s.items[s.hasher(el)]; !found {
 			return false
 		}
 	}
 	return true
 }
 
-func (s mapSet[T]) Add(element T) {
-	s[element] = setEntry{}
+func (s mapSet[K, V]) Add(element V) {
+	s.items[s.hasher(element)] = element
 }
 
-func (s mapSet[T]) AddAll(iter iterator.Iterable[T]) {
+func (s mapSet[K, V]) AddAll(iter iterator.Iterable[V]) {
 	it := iter.Iterator()
 	for o := it.Next(); o.IsPresent(); o = it.Next() {
 		el := o.Get()
-		s[el] = setEntry{}
+		hash := s.hasher(el)
+		s.items[hash] = el
 	}
 }
 
-func (s mapSet[T]) Iterator() iterator.Iterator[T] {
-	return iterator.MapKeys(s)
+func (s mapSet[K, V]) Iterator() iterator.Iterator[V] {
+	return iterator.MapValues[K, V](s.items)
 }
 
-func (s mapSet[T]) ForEach(fn func(T)) {
-	for el := range s {
-		fn(el)
+func (s mapSet[K, V]) ForEach(fn func(V)) {
+	for _, v := range s.items {
+		fn(v)
 	}
 }
 
-func (s mapSet[T]) Remove(el T) {
-	delete(s, el)
+func (s mapSet[K, V]) Remove(el V) {
+	delete(s.items, s.hasher(el))
 }
 
-func (s mapSet[T]) Empty() bool {
-	return len(s) == 0
+func (s mapSet[K, V]) Empty() bool {
+	return len(s.items) == 0
 }
 
-func (s mapSet[T]) Size() int {
-	return len(s)
+func (s mapSet[K, V]) Size() int {
+	return len(s.items)
+}
+
+func New[T comparable]() Set[T] {
+	return WithSize[T](16)
+}
+
+func WithSize[T comparable](size int) Set[T] {
+	return WithSizeAndHasher[T, T](size, func(t T) T {
+		return t
+	})
+}
+
+func WithSizeAndHasher[K comparable, V any](size int, hasher func(V) K) Set[V] {
+	return &mapSet[K, V]{
+		items:  make(map[K]V, size),
+		hasher: hasher,
+	}
+}
+
+func FromArray[T comparable](arr []T) Set[T] {
+	set := WithSize[T](len(arr))
+	set.AddAll(iterator.ArrayIterable[T](arr))
+	return set
+}
+
+func FromIterable[T comparable](iter iterator.Iterable[T]) Set[T] {
+	s := New[T]()
+	s.AddAll(iter)
+	return s
 }
