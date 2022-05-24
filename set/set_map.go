@@ -1,8 +1,8 @@
 package set
 
-import "github.com/mikhasd/fluent/iterator"
-
-type setEntry struct{}
+import (
+	"github.com/mikhasd/fluent/iterator"
+)
 
 type mapSet[K comparable, V any] struct {
 	items  map[K]V
@@ -39,7 +39,7 @@ func (s mapSet[K, V]) AddAll(iter iterator.Iterable[V]) {
 }
 
 func (s mapSet[K, V]) Iterator() iterator.Iterator[V] {
-	return iterator.MapValues[K, V](s.items)
+	return iterator.MapValues(s.items)
 }
 
 func (s mapSet[K, V]) ForEach(fn func(V)) {
@@ -65,7 +65,7 @@ func New[T comparable]() Set[T] {
 }
 
 func WithSize[T comparable](size int) Set[T] {
-	return WithSizeAndHasher[T, T](size, func(t T) T {
+	return WithSizeAndHasher(size, func(t T) T {
 		return t
 	})
 }
@@ -79,7 +79,7 @@ func WithSizeAndHasher[K comparable, V any](size int, hasher func(V) K) Set[V] {
 
 func FromArray[T comparable](arr []T) Set[T] {
 	set := WithSize[T](len(arr))
-	set.AddAll(iterator.ArrayIterable[T](arr))
+	set.AddAll(iterator.ArrayIterable(arr))
 	return set
 }
 

@@ -93,6 +93,35 @@ func (s *iteratorStream[T]) Limit(max int) Stream[T] {
 	}
 }
 
+// While
+
+type while[T any] struct {
+	condition func(T) bool
+	source    iterator.Iterator[T]
+}
+
+func (w while[T]) Size() fluent.Option[int] {
+	return iterator.Size(w.source)
+}
+
+func (w *while[T]) Next() fluent.Option[T] {
+	next := w.source.Next()
+	if next.IsPresent() && w.condition(next.Get()) {
+		return next
+	}
+	return fluent.Empty[T]()
+}
+
+func (s *iteratorStream[T]) While(condition func(T) bool) Stream[T] {
+	return &iteratorStream[T]{
+		parallel: s.parallel,
+		iterator: &while[T]{
+			condition: condition,
+			source:    s.iterator,
+		},
+	}
+}
+
 // Filter
 
 type filter[T any] struct {

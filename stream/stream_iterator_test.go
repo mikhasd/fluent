@@ -135,6 +135,29 @@ func Test_limit_Size_short(t *testing.T) {
 	assert.Equal(t, expected, actual.Get(), "size")
 }
 
+func Test_iteratorStream_While(t *testing.T) {
+	count := 3
+	stream := FromArray(streamTestData).While(func(i int) bool {
+		return i <= count
+	})
+	data := streamTestData[0:count]
+	it := stream.Iterator()
+
+	var o fluent.Option[int]
+	for i := range data {
+		val := data[i]
+		o = it.Next()
+
+		assert.NotNil(t, o, "option")
+		assert.True(t, o.IsPresent(), "present")
+		assert.Equal(t, val, o.Get(), "value")
+	}
+
+	o = it.Next()
+	assert.NotNil(t, o, "option")
+	assert.False(t, o.IsPresent(), "present")
+}
+
 func Test_iteratorStream_Filter(t *testing.T) {
 	isEven := func(n int) bool {
 		return n%2 == 0

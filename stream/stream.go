@@ -47,6 +47,8 @@ type Stream[T any] interface {
 	// Array collects into an array the result of the stream pipeline processing.
 	Array() []T
 
+	While(func(T) bool) Stream[T]
+
 	Parallel() Stream[T]
 }
 
