@@ -93,3 +93,11 @@ func CallResult[T any](fn func() (T, error)) Result[T] {
 		return Err[T](err)
 	}
 }
+
+func ResultOf[T any](val T, err error) Result[T] {
+	if err == nil {
+		return Ok(val)
+	} else {
+		return Err[T](err)
+	}
+}
